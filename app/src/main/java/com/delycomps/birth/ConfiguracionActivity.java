@@ -165,6 +165,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 .load(Constants.DIRECTORY_IMAGES_THUMBS)
                 .apply(new RequestOptions().transforms(new CircularTransformation(this)))
                 .into(imageUser);
+        ///
         //FIN SETEO
 
         names.setText(b.getDato("names"));
