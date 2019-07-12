@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Birth</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="crop_image_menu_crop">GUARDAR</string>
+    <string name="crop_image_menu_flip_horizontally">Reflejar Horizontal</string>
+    <string name="crop_image_menu_flip_vertically">Reflejar Vertical</string>
+</resources>

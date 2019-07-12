@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/radiuscontainer"
+    android:padding="10dp"
+    android:orientation="vertical">
+    <TextView
+        android:background="#202853"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textColor="#FFF"
+        android:textSize="20sp"
+        android:id="@+id/nameContacto"
+        android:text="Prima Fiorella"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:src="@mipmap/ic_time"
+                android:layout_marginEnd="8dp"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#FFF"
+                android:id="@+id/birthdayContacto"
+                android:text="15 de Oct, 1993"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/container_yearsContacto"
+            android:orientation="horizontal">
+            <ImageView
+                android:src="@mipmap/ic_time"
+                android:layout_marginEnd="8dp"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#FFF"
+                android:id="@+id/yearsContacto"
+                android:text="26 años"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:src="@mipmap/ic_time"
+                android:layout_marginEnd="8dp"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#FFF"
+                android:id="@+id/signozContacto"
+                android:text="Libra"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:src="@mipmap/ic_time"
+                android:layout_marginEnd="8dp"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#FFF"
+                android:id="@+id/signocContacto"
+                android:text="Es caballo (chino)"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:src="@mipmap/ic_time"
+                android:layout_marginEnd="8dp"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#FFF"
+                android:id="@+id/daysToBirthContacto"
+                android:text="En 243 días será Lunes"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "206221996518",
+    "firebase_url": "https://birth-97067.firebaseio.com",
+    "project_id": "birth-97067",
+    "storage_bucket": "birth-97067.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206221996518:android:07f07d64c8f3ab7e",
+        "android_client_info": {
+          "package_name": "com.delycomps.birth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206221996518-gck69d9919dgese2vilulejr135lceuh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.delycomps.birth",
+            "certificate_hash": "2d15cff715e0b95099dcf8d6d81c271afd5d0d77"
+          }
+        },
+        {
+          "client_id": "206221996518-p13tpb1cp70oh9cq7tm7unhn2rcfbmn4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.delycomps.birth",
+            "certificate_hash": "4da9cad1f87736f256b1c6bfe78ab677c40fe344"
+          }
+        },
+        {
+          "client_id": "206221996518-a5irj197unfkif1oeipbs03r1r1nc34l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBh2HY9PlhGn2jo0XPH4LnFl1PEJZx-gJ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206221996518-a5irj197unfkif1oeipbs03r1r1nc34l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
