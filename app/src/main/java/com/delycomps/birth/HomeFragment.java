@@ -1,8 +1,6 @@
 package com.delycomps.birth;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,76 +18,41 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
-
 import com.delycomps.birth.Adaptadores.ContactosAdaptador;
 import com.delycomps.birth.Entidades.Contacto;
 import com.delycomps.birth.ModeloLocal.Birth_local;
 import com.delycomps.birth.WebService.BirthApi;
 import com.delycomps.birth.WebService.NetworkClient;
-import com.delycomps.birth.WebService.RegisterResponse;
 import com.google.gson.Gson;
-
-import org.json.JSONArray;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
 import static android.app.Activity.RESULT_OK;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment implements SearchView.OnQueryTextListener{
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private OnFragmentInteractionListener mListener;
 
     ProgressDialog progress;
     RecyclerView rv_contactos;
+    ContactosAdaptador contactosAdaptador;
+    List<Contacto> contactoLista;
 
     public HomeFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -112,14 +75,12 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         // use a linear layout manager
         rv_contactos.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_contactos.addItemDecoration(new DividerItemDecoration(rv_contactos.getContext(), DividerItemDecoration.VERTICAL));
-
         Birth_local b = new Birth_local(getActivity());
-        List<Contacto> cc =  b.getContactos();
         if(b.getContactos() != null){
-            Log.d("auxiliarr", b.getDato("codUpdate"));
-            startAdapter(b.getContactos());
-//            progress = ProgressDialog.show(getActivity(), "Loading", "Espere, por favor.");
-//            getNumber();
+            contactoLista = b.getContactos();
+//            startAdapter(b.getContactos());
+            progress = ProgressDialog.show(getActivity(), "Loading", "Espere, por favor.");
+            getNumber();
         }else{
             progress = ProgressDialog.show(getActivity(), "Loading", "Espere, por favor.");
             getNumber();
@@ -135,17 +96,20 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 999 && resultCode == RESULT_OK && data != null) {
+        if (requestCode == Constants.CODE_NEW_PERSON && resultCode == RESULT_OK && data != null) {
             if(data.getBooleanExtra("register_new_person", false)){
                 Birth_local b = new Birth_local(getActivity());
                 startAdapter(b.getContactos());
-                Toast.makeText(getActivity(), "Tenemos q actualizar", Toast.LENGTH_SHORT).show();
             }
         }
-        if (requestCode == 998 && resultCode == RESULT_OK && data != null) {
+        if (requestCode == Constants.CODE_CONFIGURATION && resultCode == RESULT_OK && data != null) {
             if(data.getBooleanExtra("finish", false)){
-                getActivity().finish();
+                Objects.requireNonNull(getActivity()).finish();
                 System.exit(0);
+            }else if(data.getBooleanExtra("change_config", false)){
+                Birth_local b = new Birth_local(getActivity());
+                String label_name = "Birlay." + b.getDato("names");
+                getActivity().setTitle(label_name);
             }
         }
     }
@@ -168,11 +132,11 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         switch(item.getItemId()){
             case R.id.action_add_contacto:
                 Intent intent = new Intent(getActivity(), NewPersonaActivity.class);
-                startActivityForResult(intent, 999);
+                startActivityForResult(intent, Constants.CODE_NEW_PERSON);
                 break;
             case R.id.action_configuracion:
                 Intent intent1 = new Intent(getActivity(), ConfiguracionActivity.class);
-                startActivityForResult(intent1,998);
+                startActivityForResult(intent1,Constants.CODE_CONFIGURATION);
                 break;
         }
         return false;
@@ -203,19 +167,21 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        contactosAdaptador.setFilter(filter(contactoLista, newText));
         return false;
     }
+    private List<Contacto> filter(List<Contacto> models, String query) {
+        query = query.toLowerCase();
+        final List<Contacto> filteredModelList = new ArrayList<>();
+        for (Contacto model : models) {
+            final String text = model.getNames().toLowerCase();
+            if (text.contains(query)) {
+                filteredModelList.add(model);
+            }
+        }
+        return filteredModelList;
+    }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
@@ -249,8 +215,6 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
                     if (normalizedNumbersAlreadyFound.add(normalizedNumber)) {
                         contactoList.add(new Contacto(cursor.getString(indexOfDisplayName), cursor.getString(indexOfDisplayNumber).replace(" ","")));
                         phonenumbers.add(cursor.getString(indexOfDisplayNumber).replace(" ",""));
-                    } else {
-                        //don't do anything with this contact because we've already found this number
                     }
                 }
             } finally {
@@ -260,12 +224,12 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         Gson gson = new Gson();
         String json = gson.toJson(phonenumbers);
         consultarContactos(json, contactoList);
-
     }
     private void consultarContactos(final String list_phonenumbers, final List<Contacto> list_contactos) {
+        Log.d("jsss", list_phonenumbers);
         Retrofit retrofit = NetworkClient.getRetrofitClient();
         BirthApi birthApi = retrofit.create(BirthApi.class);
-        Birth_local b = new Birth_local(getContext());
+        Birth_local b = new Birth_local(getActivity());
         Log.d("respuesta", b.getDato("phonenumber"));
         Call<List<Contacto>> call = birthApi.verifyContactos(list_phonenumbers, b.getDato("phonenumber"));
         call.enqueue(new Callback<List<Contacto>>() {
@@ -287,8 +251,9 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
                             }
                         }
                     }
-                    setContactoSQLite(contactosVerified);
+                    contactoLista = contactosVerified;
                     startAdapter(contactosVerified);
+                    setContactoSQLite(contactosVerified);
                 }else{
                     Toast.makeText(getContext(), "No hay contactos por mostrar.", Toast.LENGTH_SHORT).show();
                 }
@@ -296,8 +261,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
             @Override
             public void onFailure(Call call, Throwable t) {
                 progress.dismiss();
-                Toast.makeText(getActivity(), "Hubo un error, vuelva a intentar", Toast.LENGTH_SHORT).show();
-                Log.d("respuesta", t.toString());
+                Toast.makeText(getActivity(), "Sin conexión a internet, vuelva a intentarlo.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -309,6 +273,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         }
     }
     private void startAdapter(List<Contacto> lc){
-        rv_contactos.setAdapter(new ContactosAdaptador(lc, getContext(), this.getLayoutInflater()));
+        contactosAdaptador = new ContactosAdaptador(lc, getContext(), this.getLayoutInflater());
+        rv_contactos.setAdapter(contactosAdaptador);
     }
 }

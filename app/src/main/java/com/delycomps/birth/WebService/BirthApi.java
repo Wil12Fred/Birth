@@ -18,10 +18,6 @@ import retrofit2.http.Part;
 public interface BirthApi {
 
         @FormUrlEncoded
-        @POST("/birth/api/send_sms.php")
-        Call<RegisterResponse> postRegisterPhoneNumber(@Field("to") String to);
-
-        @FormUrlEncoded
         @POST("/birth/api/birth/consultaNumber")
         Call<RegisterResponse> postConsultaNumber(@Field("phonenumber") String phonenumber);
 
@@ -32,6 +28,11 @@ public interface BirthApi {
         @FormUrlEncoded
         @POST("/birth/api/birth/deleteUsuario")
         Call<RegisterResponse> deleteUsuario(@Field("phonenumber") String phonenumber);
+
+        @FormUrlEncoded
+        @POST("/birth/api/birth/deleteImageUsuario")
+        Call<RegisterResponse> deleteImageUsuario(@Field("phonenumber") String phonenumber);
+
 
         @Multipart
         @POST("/birth/api/birth/registerInformation")
@@ -51,6 +52,17 @@ public interface BirthApi {
                 @Part MultipartBody.Part file,
                 @Part("name") RequestBody requestBody,
                 @Part("names") RequestBody names,
+                @Part("birthday") RequestBody  birthday,
+                @Part("hideYear") RequestBody  hideYear,
+                @Part("phonenumber") RequestBody  phonenumber
+        );
+        @Multipart
+        @POST("/birth/api/birth/editarContacto")
+        Call<RegisterResponse> editarContacto(
+                @Part MultipartBody.Part file,
+                @Part("name") RequestBody requestBody,
+                @Part("names") RequestBody names,
+                @Part("surnames") RequestBody surnames,
                 @Part("birthday") RequestBody  birthday,
                 @Part("hideYear") RequestBody  hideYear,
                 @Part("phonenumber") RequestBody  phonenumber

@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         MessagesFragment.OnFragmentInteractionListener {
 
     private boolean viewIsAtHome;
+    Birth_local b = new Birth_local(MainActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,16 +35,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(true);
-        LayoutInflater inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflator.inflate(R.layout.custom_imageview, null);
+        String label_name = "Birlay." +b.getDato("names");
+        setTitle(label_name);
 
-        TextView userConeccted = v.findViewById(R.id.userConneted);
-        setTextUser(userConeccted); //Asignar el nombre del usuario
-        userConeccted.setOnClickListener(this); //mostrar el modal al hacer click
-
-        actionBar.setCustomView(v);
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayShowCustomEnabled(true);
+//        LayoutInflater inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        View v = inflator.inflate(R.layout.custom_imageview, null);
+//
+//        TextView userConeccted = v.findViewById(R.id.userConneted);
+//        setTextUser(userConeccted); //Asignar el nombre del usuario
+//        userConeccted.setOnClickListener(this); //mostrar el modal al hacer click
+//
+//        actionBar.setCustomView(v);
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -65,10 +69,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
         }
     };
-    private void setTextUser(TextView t){
-        Birth_local b = new Birth_local(MainActivity.this);
-        t.setText(b.getDato("names"));
-    }
     public void onBackPressed() {
         if (!viewIsAtHome) { //if the current view is not the News fragment
             BottomNavigationView bottomNavigationView =  findViewById(R.id.nav_view);
@@ -94,13 +94,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if(v.getId() == R.id.userConneted){
             Utilitarios u = new Utilitarios();
-            Birth_local b = new Birth_local(MainActivity.this);
             int hideyear= Integer.parseInt(b.getDato("hideYear"));
                     String  phonenumber = b.getDato("phonenumber");
                     String  birthday = b.getDato("birthday");
                     String  surnames = b.getDato("surnames");
                     String  names = b.getDato("names");
-                    String  horoscopo = b.getDato("horoscopo");
             u.showModalContacto(new Contacto(0, hideyear, "",phonenumber,birthday, surnames,names,""), getLayoutInflater(), MainActivity.this, true);
         }
     }

@@ -18,6 +18,7 @@ import com.delycomps.birth.R;
 import com.delycomps.birth.Utilities.CircularTransformation;
 import com.delycomps.birth.Utilities.Utilitarios;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.ViewHolder> {
@@ -54,8 +55,8 @@ public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.
         holder.daysToBirth.setText(u.getDdaysBirthday(listContactos.get(position).getBirthday(), false));
         Glide.with(context)
                 .applyDefaultRequestOptions(new RequestOptions()
-                        .placeholder(R.drawable.usuario)
-                        .error(R.drawable.usuario))
+                        .placeholder(R.drawable.persona_sin_foto)
+                        .error(R.drawable.persona_sin_foto))
                 .load(url)
                 .apply(new RequestOptions().transforms(new CircularTransformation(context)))
                 .into(holder.imageContacto);
@@ -64,6 +65,12 @@ public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.
     @Override
     public int getItemCount() {
         return listContactos.size();
+    }
+
+    public void setFilter(List<Contacto> listContactosmodel) {
+        listContactos = new ArrayList<>();
+        listContactos.addAll(listContactosmodel);
+        notifyDataSetChanged();
     }
 
     public  class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

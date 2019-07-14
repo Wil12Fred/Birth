@@ -61,7 +61,6 @@ import retrofit2.Retrofit;
 public class NewPersonaActivity extends AppCompatActivity implements View.OnClickListener {
     ProgressDialog progress;
     private DatePickerDialog.OnDateSetListener onDateSetListener;
-    View item1;
     BottomNavigationView navView;
 
     RelativeLayout managePhoto;
@@ -92,9 +91,8 @@ public class NewPersonaActivity extends AppCompatActivity implements View.OnClic
                 case R.id.clear_image:
                     item.setCheckable(false);
                     selectedImage = null;
-                    imageUser.setImageDrawable(getDrawable(R.drawable.usuario));
-                    item1 = findViewById(R.id.clear_image);
-                    item1.setVisibility(View.GONE);
+                    imageUser.setImageDrawable(getDrawable(R.drawable.usuario_register));
+                    navView.getMenu().removeItem(R.id.clear_image);
                     return true;
             }
             return false;
@@ -113,11 +111,13 @@ public class NewPersonaActivity extends AppCompatActivity implements View.OnClic
         check_text = findViewById(R.id.check_textPersona);
         imageUser = findViewById(R.id.imageUserPersona);
         managePhoto = findViewById(R.id.managePhotoPersona);
-        navView = findViewById(R.id.menuPhotoPersona);
-        navView.getMenu().getItem(0).setCheckable(false);
-        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        item1 = findViewById(R.id.clear_image);
+        navView = findViewById(R.id.menuPhotoPersona);
+        navView.getMenu().findItem(R.id.clear_image).setVisible(false);
+        navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navView.getMenu().getItem(0).setCheckable(false);
+
+
         containerRegister3 = findViewById(R.id.containerNewPersona);
 
         showManage = findViewById(R.id.showManagePersona);
@@ -159,7 +159,6 @@ public class NewPersonaActivity extends AppCompatActivity implements View.OnClic
                 showDatePicker.setText(text);
             }
         };
-
     }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
@@ -233,7 +232,9 @@ public class NewPersonaActivity extends AppCompatActivity implements View.OnClic
                 InputMethodManager inputMethodManager1 = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager1.hideSoftInputFromWindow(names.getWindowToken(), 0);
                 if (selectedImage != null) {
-                    item1.setVisibility(View.VISIBLE);
+                    navView.getMenu().clear();
+                    navView.inflateMenu(R.menu.menu_manage_photo);
+                    navView.getMenu().getItem(0).setCheckable(false);
                 }
                 managePhoto.setVisibility(View.VISIBLE);
                 managePhoto.setAlpha(0.0f);

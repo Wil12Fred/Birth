@@ -8,12 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -50,17 +45,18 @@ import java.util.Calendar;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+
 public class Register3Activity extends AppCompatActivity implements View.OnClickListener {
     ProgressDialog progress;
     private DatePickerDialog.OnDateSetListener onDateSetListener;
-    View item1;
     BottomNavigationView navView;
-
+    Utilitarios u = new Utilitarios();
     RelativeLayout managePhoto;
     EditText showDatePicker, names, surnames;
     TextView check_text;
@@ -79,19 +75,18 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
                     item.setCheckable(false);
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
+                    startActivityForResult(pickPhoto, Constants.CODE_SHOW_GALLERY);//one can be replaced with any action code
                     return true;
                 case R.id.show_camara:
                     item.setCheckable(false);
                     Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);//zero can be replaced with any action code
+                    startActivityForResult(takePicture, Constants.CODE_TAKE_PHOTO);//zero can be replaced with any action code
                     return true;
                 case R.id.clear_image:
                     item.setCheckable(false);
                     selectedImage = null;
                     imageUser.setImageDrawable(getDrawable(R.drawable.usuario));
-                    item1 = findViewById(R.id.clear_image);
-                    item1.setVisibility(View.GONE);
+                    navView.getMenu().removeItem(R.id.clear_image);//quitar clear from menu
                     return true;
             }
             return false;
@@ -111,10 +106,11 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
         imageUser = findViewById(R.id.imageUser);
         managePhoto = findViewById(R.id.managePhoto);
         navView = findViewById(R.id.menuPhoto);
+        navView.getMenu().findItem(R.id.clear_image).setVisible(false);
         navView.getMenu().getItem(0).setCheckable(false);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        item1 = findViewById(R.id.clear_image);
+
         containerRegister3 = findViewById(R.id.containerRegister3);
 
         showManage = findViewById(R.id.showManage);
@@ -157,14 +153,14 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
                 showDatePicker.setText(text);
             }
         };
+        navView.getMenu().findItem(R.id.clear_image).setVisible(false);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         switch (requestCode) {
-            case 0:
+            case Constants.CODE_TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-
                     Bundle extras = imageReturnedIntent.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                     selectedImage = getImageUri(this, imageBitmap);
@@ -174,14 +170,14 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    imageUser.setImageBitmap(getCircleBitmap(bitmap));
+                    imageUser.setImageBitmap(u.getCircleBitmap(bitmap));
                     CropImage.activity(selectedImage)
                             .setFixAspectRatio(true)
                             .start(this);
                     hideManagePhoto();
                 }
                 break;
-            case 1:
+            case Constants.CODE_SHOW_GALLERY:
                 if (resultCode == RESULT_OK) {
                     selectedImage = imageReturnedIntent.getData();
                     CropImage.activity(selectedImage)
@@ -196,7 +192,7 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
                     selectedImage = result.getUri();
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                        imageUser.setImageBitmap(getCircleBitmap(bitmap));
+                        imageUser.setImageBitmap(u.getCircleBitmap(bitmap));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -223,7 +219,9 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
                 InputMethodManager inputMethodManager1 = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager1.hideSoftInputFromWindow(surnames.getWindowToken(), 0);
                 if (selectedImage != null) {
-                    item1.setVisibility(View.VISIBLE);
+                    navView.getMenu().clear();
+                    navView.inflateMenu(R.menu.menu_manage_photo);
+                    navView.getMenu().getItem(0).setCheckable(false);
                 }
                 managePhoto.setVisibility(View.VISIBLE);
                 managePhoto.setAlpha(0.0f);
@@ -350,32 +348,4 @@ public class Register3Activity extends AppCompatActivity implements View.OnClick
         });
     }
 
-    public static Bitmap getCircleBitmap(Bitmap bitmap) {
-
-        Bitmap output;
-        //check if its a rectangular image
-        if (bitmap.getWidth() > bitmap.getHeight()) {
-            output = Bitmap.createBitmap(bitmap.getHeight(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        } else {
-            output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getWidth(), Bitmap.Config.ARGB_8888);
-        }
-        Canvas canvas = new Canvas(output);
-        float r;
-        if (bitmap.getWidth() > bitmap.getHeight()) {
-            r = bitmap.getHeight() / 2;
-        } else {
-            r = bitmap.getWidth() / 2;
-        }
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-
-        canvas.drawCircle(r, r, r, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        return output;
-    }
 }

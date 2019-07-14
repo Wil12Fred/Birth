@@ -29,7 +29,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name=".Register3Activity"
-            android:noHistory="true"
+            android:noHistory="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".Register2Activity"

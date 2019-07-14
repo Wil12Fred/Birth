@@ -16,10 +16,12 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,23 +35,38 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BaseTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.transition.Transition;
 import com.delycomps.birth.ModeloLocal.Birth_local;
 import com.delycomps.birth.Utilities.CircularTransformation;
 import com.delycomps.birth.Utilities.Utilitarios;
 import com.delycomps.birth.WebService.BirthApi;
 import com.delycomps.birth.WebService.NetworkClient;
 import com.delycomps.birth.WebService.RegisterResponse;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -60,22 +77,23 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
     private DatePickerDialog.OnDateSetListener onDateSetListener;
     View item1;
     BottomNavigationView navView;
-    Utilitarios u = new Utilitarios();
     RelativeLayout managePhoto;
     EditText showDatePicker, names, surnames;
     TextView check_text, phonenumberConf, birthdayConf, yearConf, signozConf, signocConf, daysToBirthConf;
     CheckBox privateYear;
     boolean showDialogDatePicker = true;
-    ImageView containerRegister3, imageUser, showManage;
+    ImageView imageUser, showManage;
     Uri selectedImage = null;
-    Button buttonEliminar;
+    Button buttonEliminar, buttonGuardar;
+
+    Utilitarios u = new Utilitarios();
+    Birth_local b = new Birth_local(this);
 
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
-                    Birth_local b = new Birth_local(ConfiguracionActivity.this);
                     progress = ProgressDialog.show(ConfiguracionActivity.this, "Loading", "Espere, por favor.");
                     b.deleteAllContactos();
                     b.updateDato("names", "");
@@ -114,14 +132,17 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 case R.id.clear_image:
                     item.setCheckable(false);
                     selectedImage = null;
-                    imageUser.setImageDrawable(getDrawable(R.drawable.usuario));
-                    item1 = findViewById(R.id.clear_image);
-                    item1.setVisibility(View.GONE);
+                    imageUser.setImageDrawable(getDrawable(R.drawable.usuario_register));
+//                    navView.findViewById(R.id.clear_image).setVisibility(View.GONE);
+                    navView.getMenu().removeItem(R.id.clear_image);
+                    deleteImage();
                     return true;
             }
             return false;
         }
     };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,14 +158,16 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         imageUser = findViewById(R.id.imageUserConf);
         managePhoto = findViewById(R.id.managePhotoConf);
         navView = findViewById(R.id.menuPhotoConf);
+        navView.getMenu().findItem(R.id.clear_image).setVisible(false);
         navView.getMenu().getItem(0).setCheckable(false);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
         item1 = findViewById(R.id.clear_image);
-        containerRegister3 = findViewById(R.id.ContainerConf);
         showManage = findViewById(R.id.showManageConf);
         privateYear = findViewById(R.id.privateYearConf);
 
         buttonEliminar = findViewById(R.id.buttonEliminar);
+        buttonGuardar = findViewById(R.id.buttonGuardar);
 
         birthdayConf = findViewById(R.id.birthdayConf);
         yearConf = findViewById(R.id.yearConf);
@@ -153,7 +176,6 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         daysToBirthConf = findViewById(R.id.daysToBirthConf);
 
         //SETEO DE FORMULARIOS CON BDLOCAL
-        Birth_local b = new Birth_local(ConfiguracionActivity.this);
         String birthdayx = b.getDato("birthday");
         birthdayConf.setText(u.getFormaCleanDate(birthdayx, b.getDato("hideYear").equals("1")));
         yearConf.setText("" + u.getAge(birthdayx) + " años");
@@ -161,11 +183,24 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         signocConf.setText(u.getsignoChino(birthdayx.substring(0, 4)));
         daysToBirthConf.setText(u.getDdaysBirthday(birthdayx, true));
 
+
         Glide.with(this)
-                .load(Constants.DIRECTORY_IMAGES_THUMBS)
-                .apply(new RequestOptions().transforms(new CircularTransformation(this)))
-                .into(imageUser);
-        ///
+                .applyDefaultRequestOptions(new RequestOptions()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true))
+                .asBitmap()
+                .load(Constants.DIRECTORY_IMAGES_THUMBS +b.getDato("phonenumber")+".jpg")
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap bitmap, Transition<? super Bitmap> transition) {
+                        imageUser.setImageBitmap(u.getCircleBitmap(bitmap));
+                        navView.getMenu().clear();
+                        navView.inflateMenu(R.menu.menu_manage_photo);
+                        navView.getMenu().getItem(0).setCheckable(false);
+//                        navView.findViewById(R.id.clear_image).setVisibility(View.VISIBLE);
+                    }
+                });
+
         //FIN SETEO
 
         names.setText(b.getDato("names"));
@@ -179,15 +214,20 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         showDatePicker.setOnClickListener(this);
         imageUser.setOnClickListener(this);
         check_text.setOnClickListener(this);
-        containerRegister3.setOnTouchListener(new View.OnTouchListener() {
+        buttonGuardar.setOnClickListener(this);
+        LinearLayout ly = findViewById(R.id.containerL);
+        ly.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (v.getId() != R.id.showManage) {
+                Log.d("prueba1", "entro1");
+                if (v.getId() != R.id.showManageConf) {
                     managePhoto.setAlpha(1.0f);
+                    Log.d("prueba1", "entro2");
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         hideManagePhoto();
                         InputMethodManager inputMethodManager1 = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         inputMethodManager1.hideSoftInputFromWindow(names.getWindowToken(), 0);
+                        inputMethodManager1.hideSoftInputFromWindow(surnames.getWindowToken(), 0);
 
                         return true;
                     }
@@ -210,7 +250,6 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
             }
         };
     }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -221,7 +260,9 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 InputMethodManager inputMethodManager1 = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 inputMethodManager1.hideSoftInputFromWindow(names.getWindowToken(), 0);
                 if (selectedImage != null) {
-                    item1.setVisibility(View.VISIBLE);
+                    navView.getMenu().clear();
+                    navView.inflateMenu(R.menu.menu_manage_photo);
+//                    navView.findViewById(R.id.clear_image).setVisibility(View.VISIBLE);
                 }
                 managePhoto.setVisibility(View.VISIBLE);
                 managePhoto.setAlpha(0.0f);
@@ -271,17 +312,41 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 builder.setMessage("¿Desea eliminar la cuenta definitivamente?").setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("No", dialogClickListener).show();
                 break;
-//            case R.id.registerPersona:
-//                String str_names = names.getText().toString();
-//                String str_showDatePicker = showDatePicker.getText().toString();
-//                String hideYear = privateYear.isChecked() ? "true" : "false";
-//                if (str_names.equals("") || str_showDatePicker.equals("")) {
-//                    Toast.makeText(this, "Es necesario que complete toda la información.", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    progress = ProgressDialog.show(ConfiguracionActivity.this, "Loading", "Espere, por favor.");
-//                    sendInformation(str_names, str_showDatePicker, hideYear);
-//                }
-//                break;
+            case R.id.buttonGuardar:
+                String str_names = names.getText().toString();
+                String str_surnames = surnames.getText().toString();
+                String str_showDatePicker = showDatePicker.getText().toString();
+                String hideYear = privateYear.isChecked() ? "1" : "0";
+
+                String local_names = b.getDato("names");
+                String local_surnames = b.getDato("surnames");
+                String local_birthday = b.getDato("birthday");
+                String local_hideYear = b.getDato("hideYear");
+
+                String phonenumber =  b.getDato("phonenumber");
+
+                if(str_names.equals(local_names) && str_surnames.equals(local_surnames) && str_showDatePicker.equals(local_birthday) && local_hideYear.equals(hideYear)){
+                    if(selectedImage != null){
+                        progress = ProgressDialog.show(ConfiguracionActivity.this, "Loading", "Espere, por favor.");
+                        sendInformation("", "", "", hideYear, phonenumber);
+                    }else{
+                        Toast.makeText(this, "No ha hecho ningun cambio.", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    if(!str_names.equals("") && !str_surnames.equals("")){
+                        progress = ProgressDialog.show(ConfiguracionActivity.this, "Loading", "Espere, por favor.");
+                        b.updateDato("names", str_names);
+                        b.updateDato("surnames", str_surnames);
+                        b.updateDato("birthday", str_showDatePicker);
+                        b.updateDato("hideYear", hideYear);
+                        sendInformation(str_names, str_surnames, str_showDatePicker, hideYear, phonenumber);
+                    }else{
+                        Toast.makeText(this, "Debe ingresar sus datos", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+                break;
         }
     }
 
@@ -327,6 +392,8 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 if (resultCode == RESULT_OK) {
                     selectedImage = result.getUri();
                     try {
+                        Glide.with(this).clear(imageUser);
+
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                         imageUser.setImageBitmap(u.getCircleBitmap(bitmap));
                     } catch (IOException e) {
@@ -341,7 +408,10 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("change_config", true);
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();
         return false;
     }
 
@@ -357,6 +427,69 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                     }
                 });
     }
+    private void sendInformation(final String str_names, final String str_surnames, final String str_showDatePicker, final String hideYear, final String numero) {
+        Retrofit retrofit = NetworkClient.getRetrofitClient();
+        BirthApi birthApi = retrofit.create(BirthApi.class);
+
+        MultipartBody.Part part = null;
+        RequestBody description = null;
+        if (selectedImage != null) {
+            File fileSelected = new File(selectedImage.getPath());
+            RequestBody fileReqBody = RequestBody.create(MediaType.parse("*/*"), fileSelected);
+            // Create MultipartBody.Part using file request-body,file name and part name
+            part = MultipartBody.Part.createFormData("file", fileSelected.getName(), fileReqBody);
+            //Create request body with text description and text media type
+            description = RequestBody.create(MediaType.parse("text/plain"), fileSelected.getName());
+        }
+
+        RequestBody requist_names = RequestBody.create(MediaType.parse("text/plain"), str_names);
+        RequestBody requist_surnames = RequestBody.create(MediaType.parse("text/plain"), str_surnames);
+        RequestBody requist_birthday = RequestBody.create(MediaType.parse("text/plain"), str_showDatePicker);
+        RequestBody requist_hideYear = RequestBody.create(MediaType.parse("text/plain"), hideYear);
+        RequestBody requist_phonenumber = RequestBody.create(MediaType.parse("text/plain"), numero);
+
+        Call<RegisterResponse> call = birthApi.editarContacto(part, description, requist_names, requist_surnames, requist_birthday, requist_hideYear, requist_phonenumber);
+        call.enqueue(new Callback<RegisterResponse>() {
+            @Override
+            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                progress.dismiss();
+                if (response.body() != null) {
+                    if (response.body().getSuccess()) {
+                        Toast.makeText(ConfiguracionActivity.this, "Listo, se actualizó tu perfil!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(ConfiguracionActivity.this, "Hubo un error, vuelva a intentarlo", Toast.LENGTH_SHORT).show();
+                        Log.d("respuesta", response.body().getMsg());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                progress.dismiss();
+                Toast.makeText(ConfiguracionActivity.this, "Hubo un error, vuelva a intentarlo.222", Toast.LENGTH_SHORT).show();
+                Log.d("respuesta", "error " + t.toString());
+            }
+        });
+    }
+
+    private void deleteImage(){
+        Retrofit retrofit = NetworkClient.getRetrofitClient();
+        BirthApi birthApi = retrofit.create(BirthApi.class);
+
+        Call call = birthApi.deleteImageUsuario(b.getDato("phonenumber"));
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.d("respuesta", "exito");
+            }
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                progress.dismiss();
+                Log.d("respuesta", t.toString());
+                Toast.makeText(ConfiguracionActivity.this, "Hubo un error, vuelva a intentar11111", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void deleteUsuario(String number) {
         Retrofit retrofit = NetworkClient.getRetrofitClient();
@@ -368,15 +501,12 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
             public void onResponse(Call call, Response response) {
                 progress.dismiss();
                 if (response.body() != null) {
-                    Birth_local b = new Birth_local(ConfiguracionActivity.this);
                     b.updateDato("phonenumber", "");
 
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("finish", true);
                     setResult(Activity.RESULT_OK, resultIntent);
-
                     finish();
-
                 }
             }
             @Override
