@@ -1,6 +1,5 @@
 package com.delycomps.birth.Adaptadores;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -17,7 +17,6 @@ import com.delycomps.birth.Entidades.Contacto;
 import com.delycomps.birth.R;
 import com.delycomps.birth.Utilities.CircularTransformation;
 import com.delycomps.birth.Utilities.Utilitarios;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,14 +43,17 @@ public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String url;
+        String namesShow;
         if(listContactos.get(position).getName() == null){
             holder.name.setTextColor(Color.parseColor("#737373"));
             holder.daysToBirth.setTextColor(Color.parseColor("#737373"));
+            namesShow = listContactos.get(position).getNames();
             url = Constants.DIRECTORY_IMAGES_THUMBS + listContactos.get(position).getIdUser()+"_"+listContactos.get(position).getPhonenumber()+".jpg";
         }else{
+            namesShow = listContactos.get(position).getNames() + " " + listContactos.get(position).getSurnames();
             url = Constants.DIRECTORY_IMAGES_THUMBS + listContactos.get(position).getPhonenumber()+".jpg";
         }
-        holder.name.setText(listContactos.get(position).getNames());
+        holder.name.setText(namesShow);
         holder.daysToBirth.setText(u.getDdaysBirthday(listContactos.get(position).getBirthday(), false));
         Glide.with(context)
                 .applyDefaultRequestOptions(new RequestOptions()
@@ -92,6 +94,12 @@ public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.
                 Contacto c = listContactos.get(position);
                 switch(v.getId()){
                     case R.id.showModalContacto:
+
+                        Log.d("aaaaaa", "ddddd11 "+v.getPivotY());
+                        Log.d("aaaaaa", "ddddd11 "+v.getScaleY());
+                        Log.d("aaaaaa", "ddddd11 "+v.getScrollY());
+                        Log.d("aaaaaa", "ddddd11 "+v.getY());
+                        Log.d("aaaaaa", "ddddd "+v.getRotationY());
                         u.showModalContacto(c, layoutInflater, context, false);
                         break;
                 }

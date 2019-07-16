@@ -43,7 +43,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
     ProgressDialog progress;
     RecyclerView rv_contactos;
     ContactosAdaptador contactosAdaptador;
-    List<Contacto> contactoLista;
+    List<Contacto> contactoLista = null;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -167,7 +167,9 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        contactosAdaptador.setFilter(filter(contactoLista, newText));
+        if(contactosAdaptador != null){
+            contactosAdaptador.setFilter(filter(contactoLista, newText));
+        }
         return false;
     }
     private List<Contacto> filter(List<Contacto> models, String query) {
@@ -226,11 +228,10 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         consultarContactos(json, contactoList);
     }
     private void consultarContactos(final String list_phonenumbers, final List<Contacto> list_contactos) {
-        Log.d("jsss", list_phonenumbers);
+        Birth_local b = new Birth_local(getActivity());
+        Log.d("jsss", b.getDato("phonenumber"));
         Retrofit retrofit = NetworkClient.getRetrofitClient();
         BirthApi birthApi = retrofit.create(BirthApi.class);
-        Birth_local b = new Birth_local(getActivity());
-        Log.d("respuesta", b.getDato("phonenumber"));
         Call<List<Contacto>> call = birthApi.verifyContactos(list_phonenumbers, b.getDato("phonenumber"));
         call.enqueue(new Callback<List<Contacto>>() {
             @Override
@@ -273,7 +274,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         }
     }
     private void startAdapter(List<Contacto> lc){
-        contactosAdaptador = new ContactosAdaptador(lc, getContext(), this.getLayoutInflater());
+        contactosAdaptador = new ContactosAdaptador(lc, getContext(), getActivity().getLayoutInflater());
         rv_contactos.setAdapter(contactosAdaptador);
     }
 }

@@ -10,7 +10,8 @@
     <item
         android:id="@+id/empty"
         android:orderInCategory="101"
-        android:icon="@mipmap/ic_more_add"
+        
+        android:icon="@mipmap/ic_options_menu"
         app:showAsAction="always">
         <menu>
             <item

@@ -143,7 +143,6 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
     };
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,7 +188,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .skipMemoryCache(true))
                 .asBitmap()
-                .load(Constants.DIRECTORY_IMAGES_THUMBS +b.getDato("phonenumber")+".jpg")
+                .load(Constants.DIRECTORY_IMAGES_THUMBS + b.getDato("phonenumber") + ".jpg")
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap bitmap, Transition<? super Bitmap> transition) {
@@ -200,7 +199,6 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
 //                        navView.findViewById(R.id.clear_image).setVisibility(View.VISIBLE);
                     }
                 });
-
         //FIN SETEO
 
         names.setText(b.getDato("names"));
@@ -250,6 +248,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
             }
         };
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -323,24 +322,19 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 String local_birthday = b.getDato("birthday");
                 String local_hideYear = b.getDato("hideYear");
 
-                String phonenumber =  b.getDato("phonenumber");
+                String phonenumber = b.getDato("phonenumber");
 
-                if(str_names.equals(local_names) && str_surnames.equals(local_surnames) && str_showDatePicker.equals(local_birthday) && local_hideYear.equals(hideYear)){
-                    if(selectedImage != null){
-                        progress = ProgressDialog.show(ConfiguracionActivity.this, "Loading", "Espere, por favor.");
-                        sendInformation("", "", "", hideYear, phonenumber);
-                    }else{
-                        Toast.makeText(this, "No ha hecho ningun cambio.", Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    if(!str_names.equals("") && !str_surnames.equals("")){
+                if (str_names.equals(local_names) && str_surnames.equals(local_surnames) && str_showDatePicker.equals(local_birthday) && local_hideYear.equals(hideYear)) {
+                    Toast.makeText(this, "No ha hecho ningun cambio.", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (!str_names.equals("") && !str_surnames.equals("")) {
                         progress = ProgressDialog.show(ConfiguracionActivity.this, "Loading", "Espere, por favor.");
                         b.updateDato("names", str_names);
                         b.updateDato("surnames", str_surnames);
                         b.updateDato("birthday", str_showDatePicker);
                         b.updateDato("hideYear", hideYear);
                         sendInformation(str_names, str_surnames, str_showDatePicker, hideYear, phonenumber);
-                    }else{
+                    } else {
                         Toast.makeText(this, "Debe ingresar sus datos", Toast.LENGTH_SHORT).show();
                     }
 
@@ -393,9 +387,10 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                     selectedImage = result.getUri();
                     try {
                         Glide.with(this).clear(imageUser);
-
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                         imageUser.setImageBitmap(u.getCircleBitmap(bitmap));
+
+                        uploadImage(b.getDato("phonenumber"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -427,38 +422,54 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                     }
                 });
     }
-    private void sendInformation(final String str_names, final String str_surnames, final String str_showDatePicker, final String hideYear, final String numero) {
+
+    private void sendInformation(String str_names, String str_surnames, String str_showDatePicker, String hideYear, String numero) {
         Retrofit retrofit = NetworkClient.getRetrofitClient();
         BirthApi birthApi = retrofit.create(BirthApi.class);
 
-        MultipartBody.Part part = null;
-        RequestBody description = null;
-        if (selectedImage != null) {
-            File fileSelected = new File(selectedImage.getPath());
-            RequestBody fileReqBody = RequestBody.create(MediaType.parse("*/*"), fileSelected);
-            // Create MultipartBody.Part using file request-body,file name and part name
-            part = MultipartBody.Part.createFormData("file", fileSelected.getName(), fileReqBody);
-            //Create request body with text description and text media type
-            description = RequestBody.create(MediaType.parse("text/plain"), fileSelected.getName());
-        }
+        Call call = birthApi.editarContacto(numero, str_names, str_surnames, str_showDatePicker, hideYear);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                progress.dismiss();
+                Toast.makeText(ConfiguracionActivity.this, "Información actualizada.", Toast.LENGTH_SHORT).show();
+                Log.d("respuesta", "exito");
+            }
 
-        RequestBody requist_names = RequestBody.create(MediaType.parse("text/plain"), str_names);
-        RequestBody requist_surnames = RequestBody.create(MediaType.parse("text/plain"), str_surnames);
-        RequestBody requist_birthday = RequestBody.create(MediaType.parse("text/plain"), str_showDatePicker);
-        RequestBody requist_hideYear = RequestBody.create(MediaType.parse("text/plain"), hideYear);
+            @Override
+            public void onFailure(Call call, Throwable t) {
+                Toast.makeText(ConfiguracionActivity.this, "Hubo un error, vuelva a intentar11111", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void uploadImage(final String numero) {
+        Retrofit retrofit = NetworkClient.getRetrofitClient();
+        BirthApi birthApi = retrofit.create(BirthApi.class);
+
+        MultipartBody.Part part;
+        RequestBody description;
+        File fileSelected = new File(selectedImage.getPath());
+        RequestBody fileReqBody = RequestBody.create(MediaType.parse("*/*"), fileSelected);
+        // Create MultipartBody.Part using file request-body,file name and part name
+        part = MultipartBody.Part.createFormData("file", fileSelected.getName(), fileReqBody);
+        //Create request body with text description and text media type
+        description = RequestBody.create(MediaType.parse("text/plain"), fileSelected.getName());
+
         RequestBody requist_phonenumber = RequestBody.create(MediaType.parse("text/plain"), numero);
 
-        Call<RegisterResponse> call = birthApi.editarContacto(part, description, requist_names, requist_surnames, requist_birthday, requist_hideYear, requist_phonenumber);
+        Call<RegisterResponse> call = birthApi.uploadImageUsuario(part, description, requist_phonenumber);
         call.enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                progress.dismiss();
+
                 if (response.body() != null) {
                     if (response.body().getSuccess()) {
-                        Toast.makeText(ConfiguracionActivity.this, "Listo, se actualizó tu perfil!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ConfiguracionActivity.this, "Foto de perfil, actualizado!", Toast.LENGTH_SHORT).show();
+                        Log.d("respuesta", "error 1111333" );
                     } else {
+                        Log.d("respuesta", "error 111122222" );
                         Toast.makeText(ConfiguracionActivity.this, "Hubo un error, vuelva a intentarlo", Toast.LENGTH_SHORT).show();
-                        Log.d("respuesta", response.body().getMsg());
                     }
                 }
             }
@@ -472,7 +483,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         });
     }
 
-    private void deleteImage(){
+    private void deleteImage() {
         Retrofit retrofit = NetworkClient.getRetrofitClient();
         BirthApi birthApi = retrofit.create(BirthApi.class);
 
@@ -480,12 +491,12 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         call.enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) {
+                Toast.makeText(ConfiguracionActivity.this, "Imagen de perfil eliminada.", Toast.LENGTH_SHORT).show();
                 Log.d("respuesta", "exito");
             }
+
             @Override
             public void onFailure(Call call, Throwable t) {
-                progress.dismiss();
-                Log.d("respuesta", t.toString());
                 Toast.makeText(ConfiguracionActivity.this, "Hubo un error, vuelva a intentar11111", Toast.LENGTH_SHORT).show();
             }
         });
@@ -509,6 +520,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                     finish();
                 }
             }
+
             @Override
             public void onFailure(Call call, Throwable t) {
                 progress.dismiss();

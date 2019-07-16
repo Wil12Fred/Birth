@@ -11,8 +11,11 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -79,7 +82,7 @@ public class Utilitarios {
 
             String t = "";
             if (diffDays == 0 || diffDays == 365) {
-                t = "Cumpleaños";
+                t = "Hoy es su cumpleaños, felicitalo.";
             } else if (diffDays == 1) {
                 t = "En 1 día";
             } else {
@@ -183,22 +186,28 @@ public class Utilitarios {
         }
         return sign;
     }
+
     public void showModalContacto(Contacto c, LayoutInflater lf, Context cx, boolean isUsuario){
         Log.d("contacto1", "a "+c.getName());
         AlertDialog.Builder builder = new AlertDialog.Builder(cx);
         View dialogView = lf.inflate(R.layout.modal_contacto, null);
 
         TextView nameContacto = dialogView.findViewById(R.id.nameContacto);
+        LinearLayout container_modal_contacto = dialogView.findViewById(R.id.container_modal_contacto);
+        LinearLayout container_modal_contactofalso = dialogView.findViewById(R.id.container_modal_contactofalso);
 
         if(isUsuario){
             nameContacto.setVisibility(View.GONE);
         }
         if(c.getName() == null){
             nameContacto.setText(c.getNames());
+            container_modal_contactofalso.setVisibility(View.VISIBLE);
+            container_modal_contacto.setVisibility(View.GONE);
         }else{
+            container_modal_contactofalso.setVisibility(View.GONE);
+            container_modal_contacto.setVisibility(View.VISIBLE);
             nameContacto.setText(c.getName());
         }
-
 
         TextView birthdayContacto = dialogView.findViewById(R.id.birthdayContacto);
         birthdayContacto.setText(getFormaCleanDate(c.getBirthday(), c.getHideYear() == 1));
@@ -214,8 +223,7 @@ public class Utilitarios {
             String years = getAge(c.getBirthday()) > 1 ? getAge(c.getBirthday())+" años" : getAge(c.getBirthday()) +"año";
             yearsContacto.setText(years);
         }else{
-            LinearLayout ly = dialogView.findViewById(R.id.container_yearsContacto);
-            ly.setVisibility(View.GONE);
+            yearsContacto.setText("Edad desconocida");
         }
         TextView signozContacto = dialogView.findViewById(R.id.signozContacto);
         signozContacto.setText(getSignoZodiacal(c.getBirthday().substring(5,7), c.getBirthday().substring(8,10)));
@@ -224,8 +232,17 @@ public class Utilitarios {
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+
+        wmlp.gravity = Gravity.TOP | Gravity.LEFT;
+        wmlp.x = 100;   //x position
+        wmlp.y = 100;   //y position
+
+
         dialog.show();
     }
+
     public  Bitmap getCircleBitmap(Bitmap bitmap) {
 
         Bitmap output;

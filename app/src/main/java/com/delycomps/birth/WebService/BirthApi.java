@@ -33,7 +33,6 @@ public interface BirthApi {
         @POST("/birth/api/birth/deleteImageUsuario")
         Call<RegisterResponse> deleteImageUsuario(@Field("phonenumber") String phonenumber);
 
-
         @Multipart
         @POST("/birth/api/birth/registerInformation")
         Call<RegisterResponse> uploadImage(
@@ -56,15 +55,24 @@ public interface BirthApi {
                 @Part("hideYear") RequestBody  hideYear,
                 @Part("phonenumber") RequestBody  phonenumber
         );
-        @Multipart
+        @FormUrlEncoded
         @POST("/birth/api/birth/editarContacto")
         Call<RegisterResponse> editarContacto(
+                @Field("phonenumber") String phonenumber,
+                @Field("names") String names,
+                @Field("surnames") String surnames,
+                @Field("birthday") String birthday,
+                @Field("hideYear") String hideYear);
+
+        @Multipart
+        @POST("/birth/api/birth/uploadImageUsuario")
+        Call<RegisterResponse> uploadImageUsuario(
                 @Part MultipartBody.Part file,
                 @Part("name") RequestBody requestBody,
-                @Part("names") RequestBody names,
-                @Part("surnames") RequestBody surnames,
-                @Part("birthday") RequestBody  birthday,
-                @Part("hideYear") RequestBody  hideYear,
-                @Part("phonenumber") RequestBody  phonenumber
+                @Part("phonenumber") RequestBody phonenumber
+//                @Part("surnames") RequestBody surnames,
+//                @Part("birthday") RequestBody  birthday,
+//                @Part("hideYear") RequestBody  hideYear,
+//                @Part("phonenumber") RequestBody  phonenumber
         );
 }
