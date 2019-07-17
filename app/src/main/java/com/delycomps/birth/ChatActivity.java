@@ -22,7 +22,7 @@ public class ChatActivity extends AppCompatActivity {
             if (contacto != null) {
                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 FirebaseUser currentUser = mAuth.getCurrentUser();
-                
+
                 tokenUI = currentUser.getUid();
                 tokenReceptor = contacto.getTokenFB();
 
