@@ -35,6 +35,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.delycomps.birth.Entidades.Contacto;
 import com.delycomps.birth.ModeloLocal.Birth_local;
 import com.delycomps.birth.Utilities.Utilitarios;
@@ -52,6 +57,7 @@ import java.util.Calendar;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -117,7 +123,6 @@ public class NewPersonaActivity extends AppCompatActivity implements View.OnClic
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navView.getMenu().getItem(0).setCheckable(false);
 
-
         containerRegister3 = findViewById(R.id.containerNewPersona);
 
         showManage = findViewById(R.id.showManagePersona);
@@ -159,6 +164,35 @@ public class NewPersonaActivity extends AppCompatActivity implements View.OnClic
                 showDatePicker.setText(text);
             }
         };
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        //REUTILIZAMOS EL ACTIVTY
+        if (extras!=null){
+            Contacto contacto = extras.getParcelable(Constants.CODE_SEND_CONTACTO);
+            if(contacto != null){
+                Birth_local b = new Birth_local(this);
+                setTitle("Editar Contacto");
+                names.setText(contacto.getNames());
+                showDatePicker.setText(contacto.getBirthday());
+                privateYear.setChecked(contacto.getHideYear() == 1);
+                Glide.with(this)
+                        .applyDefaultRequestOptions(new RequestOptions()
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                .skipMemoryCache(true))
+                        .asBitmap()
+                        .load(Constants.DIRECTORY_IMAGES_THUMBS +contacto.getIdUser()+"_"+ b.getDato("phonenumber") + ".jpg")
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap bitmap, Transition<? super Bitmap> transition) {
+                                Utilitarios u = new Utilitarios();
+                                imageUser.setImageBitmap(u.getCircleBitmap(bitmap));
+                                navView.getMenu().clear();
+                                navView.inflateMenu(R.menu.menu_manage_photo);
+                                navView.getMenu().getItem(0).setCheckable(false);
+                            }
+                        });
+            }
+        }
     }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {

@@ -48,7 +48,6 @@ public class Register1Activity extends AppCompatActivity {
         Button buttonEnviar = findViewById(R.id.buttonEnviar);
         mAuth = FirebaseAuth.getInstance();
         phoneNumber = findViewById(R.id.phoneNumber);
-
         phoneNumber.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

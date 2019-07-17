@@ -1,9 +1,12 @@
 package com.delycomps.birth.Entidades;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Contacto {
+public class Contacto implements Parcelable {
     @SerializedName("idUser")
     @Expose
     private int idUser;
@@ -120,4 +123,47 @@ public class Contacto {
         this.name = name;
     }
 
+
+    protected Contacto(Parcel in) {
+        idUser = in.readInt();
+        hideYear = in.readInt();
+        name = in.readString();
+        phonenumber = in.readString();
+        birthday = in.readString();
+        surnames = in.readString();
+        names = in.readString();
+        tokenFB = in.readString();
+        codUpdate = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(idUser);
+        dest.writeInt(hideYear);
+        dest.writeString(name);
+        dest.writeString(phonenumber);
+        dest.writeString(birthday);
+        dest.writeString(surnames);
+        dest.writeString(names);
+        dest.writeString(tokenFB);
+        dest.writeString(codUpdate);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Contacto> CREATOR = new Parcelable.Creator<Contacto>() {
+        @Override
+        public Contacto createFromParcel(Parcel in) {
+            return new Contacto(in);
+        }
+
+        @Override
+        public Contacto[] newArray(int size) {
+            return new Contacto[size];
+        }
+    };
 }

@@ -93,13 +93,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.userConneted){
-            Utilitarios u = new Utilitarios();
-            int hideyear= Integer.parseInt(b.getDato("hideYear"));
-                    String  phonenumber = b.getDato("phonenumber");
-                    String  birthday = b.getDato("birthday");
-                    String  surnames = b.getDato("surnames");
-                    String  names = b.getDato("names");
-            u.showModalContacto(new Contacto(0, hideyear, "",phonenumber,birthday, surnames,names,""), getLayoutInflater(), MainActivity.this, true);
+//            Utilitarios u = new Utilitarios();
+//            int hideyear= Integer.parseInt(b.getDato("hideYear"));
+//                    String  phonenumber = b.getDato("phonenumber");
+//                    String  birthday = b.getDato("birthday");
+//                    String  surnames = b.getDato("surnames");
+//                    String  names = b.getDato("names");
+//            u.showModalContacto(new Contacto(0, hideyear, "",phonenumber,birthday, surnames,names,""), getLayoutInflater(), MainActivity.this, true);
         }
     }
 }

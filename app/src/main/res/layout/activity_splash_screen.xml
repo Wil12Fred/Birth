@@ -13,17 +13,10 @@
 
         <ImageView
             android:id="@+id/logo_image"
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:src="@drawable/logo_birth" />
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/birlay" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="birlay"
-            android:textColor="#FFF"
-            android:layout_gravity="center"
-            android:textSize="40sp" />
     </LinearLayout>
 
 

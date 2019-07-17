@@ -106,7 +106,6 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                     deleteUsuario(b.getDato("phonenumber"));
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
-                    Toast.makeText(ConfiguracionActivity.this, "noo", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -178,8 +177,8 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         String birthdayx = b.getDato("birthday");
         birthdayConf.setText(u.getFormaCleanDate(birthdayx, b.getDato("hideYear").equals("1")));
         yearConf.setText("" + u.getAge(birthdayx) + " años");
-        signozConf.setText(u.getSignoZodiacal(birthdayx.substring(5, 7), birthdayx.substring(8, 10)));
-        signocConf.setText(u.getsignoChino(birthdayx.substring(0, 4)));
+        signozConf.setText(u.getSignoZodiacal(birthdayx.substring(5, 7), birthdayx.substring(8, 10), true));
+        signocConf.setText(u.getsignoChino(birthdayx.substring(0, 4), true));
         daysToBirthConf.setText(u.getDdaysBirthday(birthdayx, true));
 
 

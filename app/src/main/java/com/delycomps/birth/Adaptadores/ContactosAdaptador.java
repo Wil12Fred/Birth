@@ -1,9 +1,14 @@
 package com.delycomps.birth.Adaptadores;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +28,16 @@ import java.util.List;
 public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.ViewHolder> {
 
     private Context context;
+    private Activity activity;
     private List<Contacto> listContactos;
     private LayoutInflater layoutInflater;
     private Utilitarios u = new Utilitarios();
 
-    public ContactosAdaptador(List<Contacto> contactoArrayList, Context context, LayoutInflater layoutInflater) {
+    public ContactosAdaptador(List<Contacto> contactoArrayList, Activity activity, Context context, LayoutInflater layoutInflater) {
         this.listContactos = contactoArrayList;
         this.context = context;
         this.layoutInflater = layoutInflater;
+        this.activity = activity;
     }
 
     @Override
@@ -94,14 +101,17 @@ public class ContactosAdaptador extends RecyclerView.Adapter<ContactosAdaptador.
                 Contacto c = listContactos.get(position);
                 switch(v.getId()){
                     case R.id.showModalContacto:
+                        name.setTypeface(null, Typeface.BOLD);
 
-                        Log.d("aaaaaa", "ddddd11 "+v.getPivotY());
-                        Log.d("aaaaaa", "ddddd11 "+v.getScaleY());
-                        Log.d("aaaaaa", "ddddd11 "+v.getScrollY());
-                        Log.d("aaaaaa", "ddddd11 "+v.getY());
-                        Log.d("aaaaaa", "ddddd "+v.getRotationY());
-                        u.showModalContacto(c, layoutInflater, context, false);
+                        DisplayMetrics displayMetrics = new DisplayMetrics();
+                        activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                        int height_screen = displayMetrics.heightPixels;
+                        int[] dd = new int[2];
+                        itemView.getLocationInWindow(dd);
+                        int location_y = dd[1];
+                        u.showModalContacto(c, layoutInflater, context, false, height_screen, location_y, name);
                         break;
+
                 }
             }
         }

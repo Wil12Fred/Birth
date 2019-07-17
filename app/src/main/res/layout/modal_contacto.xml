@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:gravity="end"
+    android:orientation="horizontal"
+    android:id="@+id/viewTrans"
     android:layout_height="wrap_content">
+    <View
+        android:layout_width="0dip"
 
+        android:layout_height="1dip"
+        android:layout_weight="0.4"
+        />
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dip"
+        android:layout_weight="0.6"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+
+
+        android:paddingRight="15dp"
+
+        android:paddingLeft="15dp"
         android:background="@drawable/backmodal"
         android:layout_alignParentEnd="true"
         android:orientation="vertical">
 
         <TextView
+            android:paddingTop="8dp"
             android:id="@+id/nameContacto"
+            android:maxLines="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="Prima Fiorella"
             android:textColor="#000"
-            android:textSize="15sp" />
+            android:textSize="13sp" />
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -43,12 +58,13 @@
                 <TextView
                     android:layout_marginStart="5dp"
                     android:id="@+id/birthdayContacto"
+                    android:maxLines="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="15 de Oct, 1993"
                     android:textColor="#000"
-                    android:textSize="15sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -67,8 +83,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="26 años"
+                    android:maxLines="1"
                     android:textColor="#000"
-                    android:textSize="15sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -86,9 +103,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:maxLines="1"
                     android:text="Libra"
                     android:textColor="#000"
-                    android:textSize="15sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -102,12 +120,13 @@
                 <TextView
                     android:layout_marginStart="5dp"
                     android:id="@+id/signocContacto"
+                    android:maxLines="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Es caballo (chino)"
                     android:textColor="#000"
-                    android:textSize="15sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -124,24 +143,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:maxLines="1"
                     android:text="En 243 días será Lunes"
                     android:textColor="#000"
-                    android:textSize="15sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:id="@+id/container_modal_contactofalso"
             android:orientation="horizontal"
             android:layout_gravity="center"
             android:gravity="center"
-            android:visibility="gone"
+            android:layout_marginBottom="8dp"
             android:layout_marginTop="5dp"
+            android:visibility="gone"
             android:layout_height="wrap_content">
             <Button
                 android:layout_width="0dip"
                 android:layout_weight="0.5"
                 android:layout_height="35dp"
+                android:id="@+id/contacto_falso_editar"
                 android:background="@drawable/radiuscontainerbutton"
                 android:text="Editar"/>
             <View
@@ -151,6 +173,7 @@
                 android:layout_width="0dip"
                 android:layout_weight="0.5"
                 android:layout_height="35dp"
+                android:id="@+id/contacto_falso_eliminar"
                 android:background="@drawable/radiuscontainerbutton"
                 android:text="ELIMINAR"
                 />
@@ -160,14 +183,17 @@
             android:id="@+id/container_modal_contacto"
             android:orientation="horizontal"
             android:visibility="gone"
+            android:layout_marginBottom="8dp"
             android:layout_marginTop="5dp"
             android:layout_height="wrap_content">
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="35dp"
+                android:id="@+id/enviar_mensaje"
                 android:background="@drawable/radiuscontainerbutton"
-                android:text="enviar"/>
+                android:text="ENVIAR MENSAJE"/>
 
         </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+
+</LinearLayout>

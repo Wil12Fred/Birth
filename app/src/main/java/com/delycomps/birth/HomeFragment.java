@@ -108,7 +108,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
                 System.exit(0);
             }else if(data.getBooleanExtra("change_config", false)){
                 Birth_local b = new Birth_local(getActivity());
-                String label_name = "Birlay." + b.getDato("names");
+                String label_name = "Birlay ·" + b.getDato("names");
                 getActivity().setTitle(label_name);
             }
         }
@@ -274,7 +274,7 @@ public class HomeFragment extends Fragment implements SearchView.OnQueryTextList
         }
     }
     private void startAdapter(List<Contacto> lc){
-        contactosAdaptador = new ContactosAdaptador(lc, getContext(), getActivity().getLayoutInflater());
+        contactosAdaptador = new ContactosAdaptador(lc, getActivity() ,getContext(), getActivity().getLayoutInflater());
         rv_contactos.setAdapter(contactosAdaptador);
     }
 }
